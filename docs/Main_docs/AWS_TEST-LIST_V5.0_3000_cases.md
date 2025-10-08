@@ -78,16 +78,16 @@
 ### Incremental TFRecord Save
 - [x] T048, Test Batch-wise Save, Integration Test, Verifiera att TFRecord sparas per batch, inte endast vid completion
 - [x] T049, Test Save Frequency, Integration Test, Verifiera att save sker med konfigurerad frekvens
-- [ ] T050, Test Partial Save Recovery, Integration Test, Verifiera att partiellt sparad data kan återhämtas
+- [x] T050, Test Partial Save Recovery, Integration Test, Verifiera att partiellt sparad data kan återhämtas
 - [x] T051, Test Writer Flush, Unit Test, Verifiera att TFRecord writers flushas regelbundet
-- [ ] T052, Test Save Progress Tracking, Unit Test, Verifiera att save-progress trackas korrekt
+- [x] T052, Test Save Progress Tracking, Unit Test, Verifiera att save-progress trackas korrekt
 
 ### S3 Upload & Metadata
-- [ ] T053, Test S3 Upload Success, Integration Test, Verifiera att TFRecord-filer laddas upp till S3
-- [ ] T054, Test Metadata JSON Creation, Unit Test, Verifiera att preprocessing_metadata.json skapas korrekt
-- [ ] T055, Test Metadata Content, Unit Test, Verifiera att metadata innehåller total_samples, split counts, shapes
-- [ ] T056, Test S3 Path Structure, Integration Test, Verifiera korrekt S3 path-struktur för output
-- [ ] T057, Test Upload Before Timeout, Integration Test, Verifiera att upload sker innan MaxRuntimeExceeded
+- [x] T053, Test S3 Upload Success, Integration Test, Verifiera att TFRecord-filer laddas upp till S3
+- [x] T054, Test Metadata JSON Creation, Unit Test, Verifiera att preprocessing_metadata.json skapas korrekt
+- [x] T055, Test Metadata Content, Unit Test, Verifiera att metadata innehåller total_samples, split counts, shapes
+- [x] T056, Test S3 Path Structure, Integration Test, Verifiera korrekt S3 path-struktur för output
+- [x] T057, Test Upload Before Timeout, Integration Test, Verifiera att upload sker innan MaxRuntimeExceeded
 
 ---
 
@@ -97,17 +97,17 @@
 - [x] T058, Test Checkpoint Creation, Unit Test, Verifiera att checkpoints skapas med korrekt format
 - [x] T059, Test Checkpoint Resume, Integration Test, Verifiera att processing kan återupptas från checkpoint
 - [x] T060, Test Checkpoint Interval, Unit Test, Verifiera att checkpoints sparas med konfigurerad interval
-- [ ] T061, Test Enable Checkpoints Default, Unit Test, Verifiera att --enable-checkpoints är True by default
-- [ ] T062, Test Checkpoint State Tracking, Unit Test, Verifiera att processed_cases och failed_cases trackas
-- [ ] T063, Test Checkpoint S3 Upload, Integration Test, Verifiera att checkpoints laddas upp till S3
+- [x] T061, Test Enable Checkpoints Default, Unit Test, Verifiera att --enable-checkpoints är True by default
+- [x] T062, Test Checkpoint State Tracking, Unit Test, Verifiera att processed_cases och failed_cases trackas
+- [x] T063, Test Checkpoint S3 Upload, Integration Test, Verifiera att checkpoints laddas upp till S3
 
 ### Error Handling & Memory Management
-- [ ] T064, Test Per-Case Error Handling, Unit Test, Verifiera att fel i enskilda cases inte stoppar processing
-- [ ] T065, Test Error Logging, Unit Test, Verifiera att fel loggas med tillräcklig detail
-- [ ] T066, Test Memory-Efficient Processing, Integration Test, Verifiera att minnesanvändning hålls under kontroll
-- [ ] T067, Test Batch Size Optimization, Integration Test, Verifiera att batch size balanserar minne och prestanda
-- [ ] T068, Test Failed Cases Tracking, Unit Test, Verifiera att failed cases trackas och rapporteras
-- [ ] T069, Test Graceful Degradation, Integration Test, Verifiera att systemet fortsätter vid partiella fel
+- [x] T064, Test Per-Case Error Handling, Unit Test, Verifiera att fel i enskilda cases inte stoppar processing
+- [x] T065, Test Error Logging, Unit Test, Verifiera att fel loggas med tillräcklig detail
+- [x] T066, Test Memory-Efficient Processing, Integration Test, Verifiera att minnesanvändning hålls under kontroll
+- [x] T067, Test Batch Size Optimization, Integration Test, Verifiera att batch size balanserar minne och prestanda
+- [x] T068, Test Failed Cases Tracking, Unit Test, Verifiera att failed cases trackas och rapporteras
+- [x] T069, Test Graceful Degradation, Integration Test, Verifiera att systemet fortsätter vid partiella fel
 
 ---
 

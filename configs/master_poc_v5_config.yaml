@@ -1,0 +1,81 @@
+# Master POC Preprocessing Configuration v5.0
+# ===========================================
+
+# Master POC Specification (enligt Master POC CNN-LSTM-LSTM.md)
+master_poc:
+  timeseries_features: 16  # 7 vital + 3 drugs + 6 ventilator
+  static_features: 6       # age, sex, height, weight, bmi, asa
+  output_features: 8       # 3 drugs + 5 ventilator
+  window_size: 300         # 5 minuters fönster
+  step_size: 30            # 30 sekunders steg
+  normalization_range: [-1, 1]  # Unified normalization
+
+# AWS SageMaker Configuration
+aws:
+  instance_type: "ml.m5.2xlarge"  # 8 vCPU, 32GB RAM
+  instance_count: 6               # Parallellisering
+  use_spot_instances: true        # 65-70% kostnadsbesparing
+  max_run: 93600                  # 26 timmar
+  max_wait: 187200                # 52 timmar (max_run * 2)
+  framework_version: "1.12.1"
+  python_version: "py38"
+
+# S3 Configuration
+# VIKTIGT: Känslig information finns i aws_config.env filen
+s3:
+  bucket: "[Se S3_PRIMARY_BUCKET i aws_config.env]"
+  input_path: "[Se S3_INPUT_PATH i aws_config.env]"
+  output_path: "[Se S3_OUTPUT_PATH i aws_config.env]"
+  checkpoint_path: "[Se S3_CHECKPOINT_PATH i aws_config.env]"
+
+# Processing Configuration
+processing:
+  batch_size: 50                  # Cases per batch
+  checkpoint_interval: 50         # Save checkpoint every N cases
+  enable_checkpoints: true       # KRITISKT: Måste vara true
+  enable_memory_efficient: "auto" # Auto-detect based on case count
+  memory_efficient_threshold: 50 # Minimum cases för memory-efficient
+
+# Master POC Specific
+master_poc_specific:
+  imputation_method: "master_poc_smart_forward_fill"
+  pipeline_type: "master_poc"
+  
+  # Clinical zeros enligt Master POC spec
+  clinical_zeros:
+    HR: 70
+    BP_SYS: 140
+    BP_DIA: 80
+    BP_MAP: 93  # Beräknas från default SYS/DIA
+    SPO2: 96
+    ETCO2: 0.0
+    BIS: 0.0
+    Propofol_INF: 0.0
+    Remifentanil_INF: 0.0
+    Noradrenalin_INF: 0.0
+    TV: 0.0
+    PEEP: 0.0
+    FIO2: 0.0
+    RR: 0.0
+    etSEV: 0.0
+    inSev: 0.0
+
+  # Unit conversions
+  unit_conversions:
+    propofol_concentration: 20.0    # mg/ml
+    remifentanil_concentration: 20.0  # μg/ml
+    noradrenalin_concentration: 0.1   # mg/ml
+
+# Validation Configuration
+validation:
+  min_success_rate: 0.95           # Minimum 95% success rate
+  min_window_count: 100000        # Minimum windows för 3000 cases
+  verify_output_files: true       # Verifiera att filer skapas
+  verify_s3_upload: true          # Verifiera S3 upload
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "/opt/ml/output/preprocessing.log"
+

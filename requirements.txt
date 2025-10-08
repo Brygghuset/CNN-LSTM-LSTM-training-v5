@@ -1,0 +1,21 @@
+# Master POC Preprocessing v5.0 Dependencies
+# Baserat på lyckad 2051-case körning enligt AWS_develop_instruction_V5.0.md
+
+# Core ML & Data Processing
+tensorflow==2.12.0          # Neural network preprocessing
+numpy>=1.22.0               # Numeriska operationer
+pandas>=1.5.0               # Datahantering
+scikit-learn==1.2.2         # Train/val/test split
+
+# VitalDB Integration
+vitaldb==1.5.6              # VitalDB .vital fil parsing
+
+# Configuration Management
+pyyaml==6.0                 # Konfigurationshantering
+
+# AWS Integration
+boto3>=1.26.0               # AWS S3 integration
+botocore>=1.29.0            # AWS core functionality
+
+# System Monitoring
+psutil==5.9.0               # Memory monitoring

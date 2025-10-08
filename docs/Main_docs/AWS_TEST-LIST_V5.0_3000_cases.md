@@ -10,8 +10,8 @@
 
 ### Case Range Parsing
 - [x] T001, Test Basic Range Parsing, Unit Test, Verifiera att "1-100" parsas korrekt till lista med 100 cases
-- [ ] T002, Test Comma-Separated Parsing, Unit Test, Verifiera att "1,5,10" parsas korrekt till lista med 3 cases
-- [ ] T003, Test Mixed Format Parsing, Unit Test, Verifiera att "1-10,17,0022" parsas korrekt till lista med 12 cases
+- [x] T002, Test Comma-Separated Parsing, Unit Test, Verifiera att "1,5,10" parsas korrekt till lista med 3 cases
+- [x] T003, Test Mixed Format Parsing, Unit Test, Verifiera att "1-10,17,0022" parsas korrekt till lista med 12 cases
 - [x] T004, Test Zero-Padded Cases, Unit Test, Verifiera att "0001,0022" hanteras korrekt med zero-padding
 - [x] T005, Test Invalid Range Format, Unit Test, Verifiera att ogiltiga format ger tydliga felmeddelanden
 - [x] T006, Test Large Range Parsing, Unit Test, Verifiera att "1-3000" parsas effektivt utan minnesöverskridning
@@ -32,54 +32,54 @@
 - [x] T017, Test Edge Case Weights, Unit Test, Verifiera unit conversion med extrema vikter (20kg, 200kg)
 
 ### Smart Forward Fill & Imputation
-- [ ] T018, Test Clinical Zeros, Unit Test, Verifiera att kliniska nollor appliceras korrekt per parameter
-- [ ] T019, Test Forward Fill Logic, Unit Test, Verifiera forward fill för isolerade NaN-värden
-- [ ] T020, Test Backward Fill Fallback, Unit Test, Verifiera backward fill som fallback för initiala NaN
-- [ ] T021, Test Mean Imputation, Unit Test, Verifiera mean-imputation för isolerade NaN mellan giltiga värden
-- [ ] T022, Test Default Values, Unit Test, Verifiera default-värden för vital signs (HR=70, BP_SYS=140, etc.)
-- [ ] T023, Test Imputation Edge Cases, Unit Test, Verifiera hantering av helt tomma serier
+- [x] T018, Test Clinical Zeros, Unit Test, Verifiera att kliniska nollor appliceras korrekt per parameter
+- [x] T019, Test Forward Fill Logic, Unit Test, Verifiera forward fill för isolerade NaN-värden
+- [x] T020, Test Backward Fill Fallback, Unit Test, Verifiera backward fill som fallback för initiala NaN
+- [x] T021, Test Mean Imputation, Unit Test, Verifiera mean-imputation för isolerade NaN mellan giltiga värden
+- [x] T022, Test Default Values, Unit Test, Verifiera default-värden för vital signs (HR=70, BP_SYS=140, etc.)
+- [x] T023, Test Imputation Edge Cases, Unit Test, Verifiera hantering av helt tomma serier
 
 ### Unified Normalization
-- [ ] T024, Test Normalization Formula, Unit Test, Verifiera unified normalization formula: (value - min) / (max - min) × 2 - 1
-- [ ] T025, Test Range [-1, 1], Unit Test, Verifiera att alla normaliserade värden ligger inom [-1, 1]
-- [ ] T026, Test Clinical Min/Max Ranges, Unit Test, Verifiera att clinical ranges följer Master POC spec
-- [ ] T027, Test Static Feature Normalization, Unit Test, Verifiera normalization av age, height, weight, bmi, asa
-- [ ] T028, Test Sex Encoding, Unit Test, Verifiera att sex kodas som -1 (Female) och 1 (Male)
-- [ ] T029, Test Reverse Normalization, Unit Test, Verifiera att reverse normalization ger ursprungliga värden
+- [x] T024, Test Normalization Formula, Unit Test, Verifiera unified normalization formula: (value - min) / (max - min) × 2 - 1
+- [x] T025, Test Range [-1, 1], Unit Test, Verifiera att alla normaliserade värden ligger inom [-1, 1]
+- [x] T026, Test Clinical Min/Max Ranges, Unit Test, Verifiera att clinical ranges följer Master POC spec
+- [x] T027, Test Static Feature Normalization, Unit Test, Verifiera normalization av age, height, weight, bmi, asa
+- [x] T028, Test Sex Encoding, Unit Test, Verifiera att sex kodas som -1 (Female) och 1 (Male)
+- [x] T029, Test Reverse Normalization, Unit Test, Verifiera att reverse normalization ger ursprungliga värden
 
 ### Window Creation
-- [ ] T030, Test Window Size 300s, Unit Test, Verifiera att windows är exakt 300 sekunder
-- [ ] T031, Test Step Size 30s, Unit Test, Verifiera att step size är 30 sekunder (10% overlap)
-- [ ] T032, Test Sliding Window Logic, Unit Test, Verifiera korrekt sliding window implementation
-- [ ] T033, Test Window Shape [300, 16], Unit Test, Verifiera att window shape är [300, 16] för timeseries
-- [ ] T034, Test Insufficient Data Handling, Unit Test, Verifiera hantering när case har <300s data
-- [ ] T035, Test Window Count Calculation, Unit Test, Verifiera korrekt beräkning av förväntat antal windows
+- [x] T030, Test Window Size 300s, Unit Test, Verifiera att windows är exakt 300 sekunder
+- [x] T031, Test Step Size 30s, Unit Test, Verifiera att step size är 30 sekunder (10% overlap)
+- [x] T032, Test Sliding Window Logic, Unit Test, Verifiera korrekt sliding window implementation
+- [x] T033, Test Window Shape [300, 16], Unit Test, Verifiera att window shape är [300, 16] för timeseries
+- [x] T034, Test Insufficient Data Handling, Unit Test, Verifiera hantering när case har <300s data
+- [x] T035, Test Window Count Calculation, Unit Test, Verifiera korrekt beräkning av förväntat antal windows
 
 ---
 
 ## OUTPUT & STORAGE TESTS
 
 ### TFRecord Creation
-- [ ] T036, Test TFRecord Schema, Unit Test, Verifiera korrekt TFRecord schema med timeseries, static, targets
-- [ ] T037, Test Memory-Efficient Streaming, Unit Test, Verifiera att TFRecord skrivs streamat utan minnesöverskridning
-- [ ] T038, Test Target Shape [8], Unit Test, Verifiera att targets har shape [8] med 3 drugs + 5 ventilator
-- [ ] T039, Test Static Shape [6], Unit Test, Verifiera att static features har shape [6]
-- [ ] T040, Test TFRecord File Creation, Integration Test, Verifiera att TFRecord-filer faktiskt skapas på disk
-- [ ] T041, Test TFRecord Readability, Integration Test, Verifiera att skapade TFRecord-filer kan läsas av TensorFlow
+- [x] T036, Test TFRecord Schema, Unit Test, Verifiera korrekt TFRecord schema med timeseries, static, targets
+- [x] T037, Test Memory-Efficient Streaming, Unit Test, Verifiera att TFRecord skrivs streamat utan minnesöverskridning
+- [x] T038, Test Target Shape [8], Unit Test, Verifiera att targets har shape [8] med 3 drugs + 5 ventilator
+- [x] T039, Test Static Shape [6], Unit Test, Verifiera att static features har shape [6]
+- [x] T040, Test TFRecord File Creation, Integration Test, Verifiera att TFRecord-filer faktiskt skapas på disk
+- [x] T041, Test TFRecord Readability, Integration Test, Verifiera att skapade TFRecord-filer kan läsas av TensorFlow
 
 ### Train/Val/Test Split
-- [ ] T042, Test 70/15/15 Split, Unit Test, Verifiera korrekt 70/15/15 split av windows
-- [ ] T043, Test Split Consistency, Unit Test, Verifiera att samma case alltid hamnar i samma split
-- [ ] T044, Test Three TFRecord Files, Integration Test, Verifiera att train.tfrecord, validation.tfrecord, test.tfrecord skapas
-- [ ] T045, Test Split Metadata, Unit Test, Verifiera att split-statistik sparas i metadata
-- [ ] T046, Test Minimum Split Size, Unit Test, Verifiera hantering när dataset är för litet för split
-- [ ] T047, Test Split Randomization, Unit Test, Verifiera att split är randomiserad men deterministisk
+- [x] T042, Test 70/15/15 Split, Unit Test, Verifiera korrekt 70/15/15 split av windows
+- [x] T043, Test Split Consistency, Unit Test, Verifiera att samma case alltid hamnar i samma split
+- [x] T044, Test Three TFRecord Files, Integration Test, Verifiera att train.tfrecord, validation.tfrecord, test.tfrecord skapas
+- [x] T045, Test Split Metadata, Unit Test, Verifiera att split-statistik sparas i metadata
+- [x] T046, Test Minimum Split Size, Unit Test, Verifiera hantering när dataset är för litet för split
+- [x] T047, Test Split Randomization, Unit Test, Verifiera att split är randomiserad men deterministisk
 
 ### Incremental TFRecord Save
-- [ ] T048, Test Batch-wise Save, Integration Test, Verifiera att TFRecord sparas per batch, inte endast vid completion
-- [ ] T049, Test Save Frequency, Integration Test, Verifiera att save sker med konfigurerad frekvens
+- [x] T048, Test Batch-wise Save, Integration Test, Verifiera att TFRecord sparas per batch, inte endast vid completion
+- [x] T049, Test Save Frequency, Integration Test, Verifiera att save sker med konfigurerad frekvens
 - [ ] T050, Test Partial Save Recovery, Integration Test, Verifiera att partiellt sparad data kan återhämtas
-- [ ] T051, Test Writer Flush, Unit Test, Verifiera att TFRecord writers flushas regelbundet
+- [x] T051, Test Writer Flush, Unit Test, Verifiera att TFRecord writers flushas regelbundet
 - [ ] T052, Test Save Progress Tracking, Unit Test, Verifiera att save-progress trackas korrekt
 
 ### S3 Upload & Metadata
@@ -195,7 +195,7 @@
 - [ ] T114, Test Incremental Save E2E, End-to-End Test, Verifiera incremental save i full pipeline
 
 ### Medium Scale Tests (Pilot)
-- [ ] T115, Test 200 Cases 2 Instances, End-to-End Test, Pilot test med 200 cases och 2 instanser
+- [ ] T115, Test 200 Cases 6 Instances, End-to-End Test, Pilot test med 200 cases och 6 instanser
 - [ ] T116, Test Output Verification E2E, End-to-End Test, Verifiera all output i pilot test
 - [ ] T117, Test Metadata Analysis E2E, End-to-End Test, Analysera metadata från pilot test
 - [ ] T118, Test Performance Metrics E2E, End-to-End Test, Mät prestanda i pilot test

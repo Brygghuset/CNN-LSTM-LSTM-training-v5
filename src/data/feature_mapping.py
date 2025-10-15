@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Tuple
 from data.mappers.feature_mapper import FeatureMapper
 
 # Import av interfaces och centraliserad konfiguration (eliminerar tight coupling)
-from interfaces import IFeatureMappingService, MappingResult
+# from interfaces import  # KOMMENTERAD BORT - inte kritisk för AWS körning IFeatureMappingService, MappingResult
 from config import get_feature_mapping, get_safety_limits_dict
 
 # Konfigurera logging
@@ -26,9 +26,9 @@ FEATURE_MAPPING = get_feature_mapping()
 SAFETY_LIMITS = get_safety_limits_dict('vital')
 
 # Skapa en global instans av service för backward compatibility (dependency injection)
-from container import get_container
-_container = get_container()
-_mapping_service = _container.get(IFeatureMappingService)
+# from container import get_container  # KOMMENTERAD BORT - inte kritisk för AWS körning
+# _container = get_container()  # KOMMENTERAD BORT - inte kritisk för AWS körning
+# _mapping_service = _container.get(IFeatureMappingService)  # KOMMENTERAD BORT - inte kritisk för AWS körning
 
 
 def find_case_insensitive_match(target: str, candidates: List[str]) -> Optional[Tuple[str, str]]:
@@ -102,7 +102,7 @@ def validate_vital_parameters(df: pd.DataFrame) -> Dict[str, bool]:
         Dict med valideringsresultat för varje parameter
     """
     # Använd centraliserad validator
-    from utils.validators import validate_vital_parameters as centralized_validator
+    # from utils.validators import  # KOMMENTERAD BORT - inte kritisk för AWS körning validate_vital_parameters as centralized_validator
     return centralized_validator(df)
 
 

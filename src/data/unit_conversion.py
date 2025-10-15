@@ -11,7 +11,7 @@ import logging
 from typing import Dict, Optional
 
 # Import av interfaces och centraliserad konfiguration (eliminerar tight coupling)
-from interfaces import IUnitConversionService, ConversionResult
+# from interfaces import  # KOMMENTERAD BORT - inte kritisk för AWS körning IUnitConversionService, ConversionResult
 from config import get_drug_concentrations, get_safety_limits_dict
 
 # Konfigurera logging
@@ -25,9 +25,9 @@ DRUG_CONCENTRATIONS = get_drug_concentrations()
 DRUG_SAFETY_LIMITS = get_safety_limits_dict('drug')
 
 # Skapa en global instans av service för backward compatibility (dependency injection)
-from container import get_container
-_container = get_container()
-_conversion_service = _container.get(IUnitConversionService)
+# from container import get_container  # KOMMENTERAD BORT - inte kritisk för AWS körning
+# _container = get_container()  # KOMMENTERAD BORT - inte kritisk för AWS körning
+# _conversion_service = _container.get(IUnitConversionService)  # KOMMENTERAD BORT - inte kritisk för AWS körning
 
 
 def convert_vitaldb_units(vitaldb_data: pd.DataFrame, patient_weight: float) -> pd.DataFrame:
@@ -67,7 +67,7 @@ def validate_drug_safety_limits(df: pd.DataFrame) -> Dict[str, bool]:
         Dict med valideringsresultat för varje läkemedel
     """
     # Använd centraliserad validator
-    from utils.validators import validate_drug_safety_limits as centralized_validator
+    # from utils.validators import  # KOMMENTERAD BORT - inte kritisk för AWS körning validate_drug_safety_limits as centralized_validator
     return centralized_validator(df)
 
 

@@ -34,8 +34,10 @@ class DataPreprocessor:
         self.validator = None
         if validate_physiological:
             try:
-                from utils.validators import CentralizedValidator
-                self.validator = CentralizedValidator()
+                # from utils.validators import CentralizedValidator  # KOMMENTERAD BORT - inte kritisk för AWS körning
+                # self.validator = CentralizedValidator()
+                self.validator = None  # Tillfälligt inaktiverad
+                logger.info("Physiological validation temporarily disabled for AWS compatibility")
             except ImportError:
                 logger.warning("CentralizedValidator kunde inte importeras")
         

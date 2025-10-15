@@ -80,10 +80,11 @@ class VitalDBDataLoader:
         self.csv_loader = CSVLoader()
         self.clinical_loader = ClinicalLoader()
         # Använd dependency injection istället för tight coupling
-        from container import get_container
-        from interfaces import IFeatureMappingService
-        container = get_container()
-        self.feature_mapping_service = container.get(IFeatureMappingService)
+        # from container import get_container  # KOMMENTERAD BORT - inte kritisk för AWS körning
+        # from interfaces import  # KOMMENTERAD BORT - inte kritisk för AWS körning IFeatureMappingService
+        # container = get_container()  # KOMMENTERAD BORT - inte kritisk för AWS körning
+        # self.feature_mapping_service = container.get(IFeatureMappingService)  # KOMMENTERAD BORT - inte kritisk för AWS körning
+        self.feature_mapping_service = None  # Tillfälligt inaktiverad för AWS kompatibilitet
         self.data_validator = DataValidator(self.config)
         self.clinical_validator = ClinicalValidator(self.config)
         

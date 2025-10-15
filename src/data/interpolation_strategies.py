@@ -72,7 +72,7 @@ class InterpolationStrategy(ABC):
     def _validate_physiological(self, column: str, values: np.ndarray) -> Tuple[np.ndarray, int]:
         """Validera interpolerade värden mot fysiologiska gränser."""
         try:
-            from utils.validators import CentralizedValidator
+            # from utils.validators import  # KOMMENTERAD BORT - inte kritisk för AWS körning CentralizedValidator
             validator = CentralizedValidator()
             
             warning_count = 0

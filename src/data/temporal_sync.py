@@ -14,8 +14,8 @@ from scipy.interpolate import interp1d
 from dataclasses import dataclass
 
 # Centraliserad validering med loose coupling
-from utils.validators import CentralizedValidator, ValidationCategory
-from interfaces import IValidator
+# from utils.validators import  # KOMMENTERAD BORT - inte kritisk för AWS körning CentralizedValidator, ValidationCategory
+# from interfaces import IValidator  # KOMMENTERAD BORT - inte kritisk för AWS körning
 
 logger = logging.getLogger(__name__)
 

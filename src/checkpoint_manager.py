@@ -348,6 +348,12 @@ class MasterPOCCheckpointManager:
             logger.error(f"❌ Failed to cleanup checkpoints: {e}")
             return False
 
+def get_memory_usage_mb() -> float:
+    """Hämta aktuell minnesanvändning i MB."""
+    import psutil
+    process = psutil.Process()
+    return process.memory_info().rss / (1024 * 1024)
+
 def create_checkpoint_manager(checkpoint_path: str, enable_checkpoints: bool = True, checkpoint_interval: int = 50) -> MasterPOCCheckpointManager:
     """Skapa en ny MasterPOCCheckpointManager instans."""
     return MasterPOCCheckpointManager(checkpoint_path, enable_checkpoints, checkpoint_interval)

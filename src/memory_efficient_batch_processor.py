@@ -17,7 +17,7 @@ from typing import List, Dict, Optional, Tuple
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from checkpoint_manager import PreprocessingCheckpointManager, get_memory_usage_mb
+from checkpoint_manager import MasterPOCCheckpointManager, get_memory_usage_mb
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -406,7 +406,7 @@ class MemoryEfficientBatchProcessor:
     
     def process_large_dataset(self, case_ids: List[str],
                              case_processor_func,
-                             checkpoint_manager: PreprocessingCheckpointManager,
+                             checkpoint_manager: MasterPOCCheckpointManager,
                              output_dir: str,
                              **kwargs) -> Dict:
         """

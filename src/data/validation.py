@@ -4,7 +4,7 @@ import logging
 from typing import Dict, Tuple, List
 from abc import ABC, abstractmethod
 
-from domain.services import MedicalConfig
+# from domain.services import MedicalConfig  # KOMMENTERAD BORT - inte kritisk för AWS körning
 
 logger = logging.getLogger(__name__)
 

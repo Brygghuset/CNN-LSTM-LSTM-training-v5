@@ -27,8 +27,8 @@ from sagemaker import get_execution_role
 def create_sagemaker_estimator(args):
     """Skapa SageMaker PyTorch Estimator med Master POC v5.0 konfiguration."""
     
-    # Get execution role
-    role = get_execution_role()
+    # Get execution role - använd specifik role från aws_config.env
+    role = "arn:aws:iam::631158448906:role/service-role/AmazonSageMaker-ExecutionRole-20250714T085596"
     
     # Create PyTorch estimator
     estimator = PyTorch(
@@ -55,7 +55,11 @@ def create_sagemaker_estimator(args):
             'imputation-method': 'master_poc_smart_forward_fill',
             'pipeline-type': 'master_poc',
             's3-bucket': args.s3_bucket,
-            'checkpoint-base-path': args.checkpoint_path
+            'checkpoint-base-path': args.checkpoint_path,
+            # Orchestrator-specifika hyperparameters
+            'enable-s3': 'true',
+            'enable-streaming': 'true',
+            'memory-efficient': 'true'
         },
         use_spot_instances=args.use_spot,
         max_run=args.max_run,
@@ -137,10 +141,13 @@ def validate_configuration(args):
 
 def monitor_job(estimator):
     """Övervaka SageMaker job progress."""
-    print(f"📊 Monitoring job: {estimator.latest_training_job.name}")
     
-    # Wait for job to start
+    # Start job first
+    print("🚀 Starting SageMaker training job...")
     estimator.fit(wait=False)
+    
+    # Now we can access the job name
+    print(f"📊 Monitoring job: {estimator.latest_training_job.name}")
     
     # Monitor progress
     while True:

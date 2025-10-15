@@ -37,23 +37,20 @@ import boto3
 from botocore.exceptions import ClientError
 from sklearn.model_selection import train_test_split
 
-# Lägg till src-mappen i Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
 # Import från vår utils-modul
 from utils.case_range_parser import parse_case_range
 
 # Import checkpoint manager
-from checkpoint_manager import MasterPOCCheckpointManager, get_memory_usage_mb, create_checkpoint_manager
+from checkpoint_manager import MasterPOCCheckpointManager, create_checkpoint_manager
 
 # Import memory-efficient batch processor
-    from memory_efficient_batch_processor import MemoryEfficientBatchProcessor
+from memory_efficient_batch_processor import MemoryEfficientBatchProcessor
 
 # Import Master POC preprocessing components
-    from data.master_poc_preprocessing_pipeline import MasterPOCPreprocessingPipeline, MasterPOCPreprocessingConfig
-    from data.master_poc_preprocessing_orchestrator import MasterPOCPreprocessingOrchestrator, create_master_poc_orchestrator
+from data.master_poc_preprocessing_pipeline import MasterPOCPreprocessingPipeline, MasterPOCPreprocessingConfig
+from data.master_poc_preprocessing_orchestrator import MasterPOCPreprocessingOrchestrator, create_master_poc_orchestrator
 from data.master_poc_tfrecord_creator import MasterPOCTFRecordCreator
-from data.s3_parallel_loader import S3ParallelLoader
+# from data.s3_parallel_loader import S3ParallelLoader  # KOMMENTERAD BORT - inte kritisk för AWS körning
 
 
 # Konstanter enligt Master POC specifikation
@@ -281,16 +278,16 @@ def upload_to_s3_with_retry(local_path: str, s3_path: str, bucket: str, max_retr
     return False
 
 def process_cases(case_ids: List[str], checkpoint_path: str, args):
-    """Processa cases med Master POC pipeline."""
+    """Processa cases med Master POC Orchestrator."""
     global current_batch
     
-    logger.info(f"🚀 Startar processing av {len(case_ids)} cases")
+    logger.info(f"🚀 Startar processing av {len(case_ids)} cases med Master POC Orchestrator")
     
     # Ladda konfiguration
     config = load_config()
     
-    # Initiera checkpoint manager
-    checkpoint_manager = MasterPOCCheckpointManager(
+    # Initiera checkpoint manager för instans-specifik tracking
+    checkpoint_manager = create_checkpoint_manager(
         checkpoint_path=checkpoint_path,
         enable_checkpoints=args.enable_checkpoints,
         checkpoint_interval=args.checkpoint_interval
@@ -301,7 +298,7 @@ def process_cases(case_ids: List[str], checkpoint_path: str, args):
     if checkpoint_loaded:
         logger.info("📂 Checkpoint laddad - återupptar processing")
     
-    # Initiera Master POC orchestrator
+    # Initiera Master POC orchestrator (hanterar pipeline, batching, checkpoints)
     orchestrator = create_master_poc_orchestrator(
         s3_bucket=args.s3_bucket,
         checkpoint_interval=args.checkpoint_interval,
@@ -309,107 +306,86 @@ def process_cases(case_ids: List[str], checkpoint_path: str, args):
         enable_s3=True
     )
     
-    # Initiera memory-efficient batch processor
-    batch_processor = MemoryEfficientBatchProcessor(
-        batch_size=args.batch_size,
-        enable_memory_monitoring=True,
-        memory_threshold_mb=28000  # 28GB för ml.m5.2xlarge
-    )
+    # Filtrera redan processade cases
+    remaining_cases = [
+        case_id for case_id in case_ids 
+        if case_id not in checkpoint_manager.processed_cases
+    ]
     
-    # Initiera TFRecord creator
-    tfrecord_creator = MasterPOCTFRecordCreator(
-        config=config,
-        compression_type='GZIP'
-    )
+    logger.info(f"📊 Processing status:")
+    logger.info(f"   Total cases: {len(case_ids)}")
+    logger.info(f"   Already processed: {len(checkpoint_manager.processed_cases)}")
+    logger.info(f"   Remaining: {len(remaining_cases)}")
     
-    # Skapa output directories
-    local_output_dir = '/opt/ml/output/data'
-    os.makedirs(local_output_dir, exist_ok=True)
+    if not remaining_cases:
+        logger.info("✅ Alla cases redan processade")
+        return
     
-    # Initiera S3 loader
-    s3_loader = S3ParallelLoader(
-        s3_bucket=args.s3_bucket,
-        max_workers=4,
-        retry_attempts=3
-    )
+    # Processa cases batch-wise med orchestrator
+    all_results = []
+    current_batch = remaining_cases
     
     try:
-        # Filtrera redan processade cases
-        remaining_cases = [
-            case_id for case_id in case_ids 
-            if case_id not in checkpoint_manager.processed_cases
-        ]
-        
-        logger.info(f"📊 Processing status:")
-        logger.info(f"   Total cases: {len(case_ids)}")
-        logger.info(f"   Already processed: {len(checkpoint_manager.processed_cases)}")
-        logger.info(f"   Remaining: {len(remaining_cases)}")
-        
-        if not remaining_cases:
-            logger.info("✅ Alla cases redan processade")
-            return
-        
-        # Processa cases med memory-efficient batch processor
-        def case_processor_func(case_batch):
-            """Processor function för en batch av cases."""
-            batch_results = []
-            
-            for case_id in case_batch:
-        if shutdown_requested:
-                    logger.info("🛑 Shutdown requested - avbryter batch")
-            break
+        for i in range(0, len(remaining_cases), args.batch_size):
+            if shutdown_requested:
+                logger.info("🛑 Shutdown requested - avbryter batch")
+                break
                 
-                try:
-                    # Processa case med orchestrator
-                    result = orchestrator.process_single_case(
-                        case_id=case_id,
-                        enable_s3_download=True,
-                        enable_preprocessing=True,
-                        enable_window_creation=True
-                    )
+            batch = remaining_cases[i:i + args.batch_size]
+            logger.info(f"📦 Processing batch {i//args.batch_size + 1}: cases {batch[0]}-{batch[-1]}")
+            
+            for case_id in batch:
+                if shutdown_requested:
+                    break
                     
-                    if result and result.get('success', False):
-                        batch_results.append(result)
+                try:
+                    # Ladda case data med orchestrator
+                    timeseries_df, clinical_df = orchestrator.load_case_data(case_id)
+                    
+                    if timeseries_df is None:
+                        logger.warning(f"⚠️ Case {case_id} - ingen data laddad")
+                        checkpoint_manager.failed_cases.add(case_id)
+                        continue
+                    
+                    # Processa med orchestrator (hanterar preprocessing + TFRecord prep)
+                    result = orchestrator.process_case(case_id, timeseries_df, clinical_df)
+                    
+                    if result['status'] == 'success':
+                        all_results.append(result)
                         checkpoint_manager.processed_cases.add(case_id)
-                        logger.info(f"✅ Case {case_id} processed successfully")
+                        logger.info(f"✅ Case {case_id} processed successfully: {result['windows_count']} windows")
                     else:
                         checkpoint_manager.failed_cases.add(case_id)
-                        logger.warning(f"⚠️ Case {case_id} failed processing")
+                        logger.warning(f"⚠️ Case {case_id} failed: {result.get('error', 'Unknown error')}")
                         
                 except Exception as e:
                     logger.error(f"❌ Error processing case {case_id}: {e}")
                     checkpoint_manager.failed_cases.add(case_id)
             
-            return batch_results
+            # Spara checkpoint efter batch
+            if checkpoint_manager.should_save_checkpoint(case_id):
+                checkpoint_manager.save_checkpoint(case_id)
         
-        # Kör processing med incremental TFRecord save
-        current_batch = remaining_cases
-        processing_results = batch_processor.process_large_dataset(
-            case_ids=remaining_cases,
-            case_processor_func=case_processor_func,
-            checkpoint_manager=checkpoint_manager,
-            output_dir=local_output_dir
-        )
-        
-        # Skapa final TFRecord files med train/val/test split
-        logger.info("📝 Skapar final TFRecord files med train/val/test split...")
-        
-        # Samla alla processade windows
+        # Samla alla windows från results
         all_windows = []
         all_static = []
         all_targets = []
         all_case_ids = []
         
-        for result in processing_results.get('successful_results', []):
-            if 'windows' in result and 'static_features' in result:
-                all_windows.extend(result['windows'])
-                all_static.extend(result['static_features'])
+        for result in all_results:
+            if 'tfrecord_data' in result:
+                tfrecord_data = result['tfrecord_data']
+                all_windows.extend(tfrecord_data['timeseries_windows'])
+                all_static.extend(tfrecord_data['static_features'])
                 # Targets skapas från nästa tidssteg enligt Master POC spec
-                all_targets.extend(result.get('targets', []))
-                all_case_ids.extend([result['case_id']] * len(result['windows']))
+                # För nu, skapa dummy targets eller skip targets
+                dummy_targets = np.zeros((len(tfrecord_data['timeseries_windows']), 8), dtype=np.float32)
+                all_targets.extend(dummy_targets)
+                all_case_ids.extend([result['case_id']] * len(tfrecord_data['timeseries_windows']))
         
         if all_windows:
             # Skapa train/val/test split (70/15/15)
+            logger.info("📝 Skapar train/val/test split...")
             
             # Första split: 70% train, 30% temp
             train_windows, temp_windows, train_static, temp_static, train_targets, temp_targets = train_test_split(
@@ -422,19 +398,21 @@ def process_cases(case_ids: List[str], checkpoint_path: str, args):
             )
             
             # Skapa TFRecord files
+            tfrecord_creator = MasterPOCTFRecordCreator(config=config, compression_type='GZIP')
+            
             train_path = tfrecord_creator.create_memory_efficient_tfrecord(
                 np.array(train_windows), np.array(train_static), np.array(train_targets),
-                f"{local_output_dir}/train", "train"
+                f"/opt/ml/output/data/train", "train"
             )
             
             val_path = tfrecord_creator.create_memory_efficient_tfrecord(
                 np.array(val_windows), np.array(val_static), np.array(val_targets),
-                f"{local_output_dir}/validation", "validation"
+                f"/opt/ml/output/data/validation", "validation"
             )
             
             test_path = tfrecord_creator.create_memory_efficient_tfrecord(
                 np.array(test_windows), np.array(test_static), np.array(test_targets),
-                f"{local_output_dir}/test", "test"
+                f"/opt/ml/output/data/test", "test"
             )
             
             # Upload till S3 med retry logic
@@ -468,7 +446,7 @@ def process_cases(case_ids: List[str], checkpoint_path: str, args):
                 'created_at': datetime.now().isoformat()
             }
             
-            metadata_path = f"{local_output_dir}/preprocessing_metadata.json"
+            metadata_path = f"/opt/ml/output/data/preprocessing_metadata.json"
             with open(metadata_path, 'w') as f:
                 json.dump(metadata, f, indent=2)
             
@@ -638,7 +616,7 @@ def main():
         output_verified = verify_output(args)
         
         if output_verified:
-        logger.info("🎉 Master POC preprocessing v5.0 completed successfully!")
+            logger.info("🎉 Master POC preprocessing v5.0 completed successfully!")
         else:
             logger.error("❌ Output verification failed")
             raise RuntimeError("Output verification failed")

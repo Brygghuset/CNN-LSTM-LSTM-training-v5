@@ -116,6 +116,36 @@ Backend: TensorFlow 2.12.0 (för neural preprocessing)
 - Snabb iteration under utveckling
 - AWS-managed environment
 
+### 3.3 Verifiera Dependencies
+
+Följande dependencies måste finnas för Master POC v5.0:
+
+**Core Dependencies (från requirements.txt):**
+- tensorflow==2.12.0
+- vitaldb==1.5.6
+- pyyaml==6.0
+- scikit-learn==1.2.2
+- numpy>=1.22.0
+- pandas>=1.5.0
+- boto3>=1.26.0
+- psutil==5.9.0
+
+**Verifiera att alla moduler finns:**
+```bash
+# Från project root
+python -c "from src.checkpoint_manager import MasterPOCCheckpointManager; print('✅ checkpoint_manager OK')"
+python -c "from src.memory_efficient_batch_processor import MemoryEfficientBatchProcessor; print('✅ memory_efficient_batch_processor OK')"
+python -c "from src.data.master_poc_preprocessing_orchestrator import MasterPOCPreprocessingOrchestrator; print('✅ orchestrator OK')"
+python -c "from src.data.master_poc_preprocessing_pipeline import MasterPOCPreprocessingPipeline; print('✅ pipeline OK')"
+python -c "from src.data.master_poc_tfrecord_creator import MasterPOCTFRecordCreator; print('✅ tfrecord_creator OK')"
+python -c "from src.utils.case_range_parser import parse_case_range; print('✅ case_range_parser OK')"
+```
+
+**Om någon import misslyckas:**
+1. Kontrollera att filen finns i `src/` strukturen
+2. Kontrollera att `__init__.py` finns i alla directories
+3. Kontrollera att PYTHONPATH inkluderar project root
+
 ---
 
 ## 4. MASTER POC SPECIFIKATION
@@ -221,6 +251,72 @@ CNN-LSTM-LSTM-training-v5/
 - TFRecord writer
 - Train/val/test split logic
 - Metadata generation
+
+---
+
+## 6.5 Master POC Orchestrator - Arkitektur
+
+### Komponentöversikt
+
+Master POC preprocessing använder en **Orchestrator-pattern** för att separera concerns:
+
+1. **MasterPOCPreprocessingPipeline** (Core Logic)
+   - Feature mapping (16 timeseries + 6 static)
+   - Unit conversions (drugs, tidal volume)
+   - Smart forward fill imputation
+   - Unified normalization [-1, 1]
+   - Window creation (300s, 30s step)
+
+2. **MasterPOCPreprocessingOrchestrator** (Infrastructure)
+   - Batch processing
+   - Checkpoint management
+   - TFRecord creation
+   - S3 integration
+   - Memory management
+   - Error handling
+
+3. **Entry Point** (`master_poc_preprocessing_v5.py`)
+   - Multi-instance case distribution
+   - SageMaker environment integration
+   - Graceful shutdown handling
+   - Output verification
+
+### Dataflöde
+
+```
+Case IDs → Orchestrator.load_case_data() → Pipeline.preprocess_case() 
+  → Orchestrator.process_case() → TFRecord preparation
+  → Batch accumulation → Train/Val/Test split → TFRecord files → S3
+```
+
+### Användning i Entry Point
+
+```python
+# Skapa orchestrator
+orchestrator = create_master_poc_orchestrator(
+    s3_bucket='master-poc-v1.0',
+    checkpoint_interval=50,
+    batch_size=50,
+    enable_s3=True
+)
+
+# Processa case
+result = orchestrator.process_case(case_id, timeseries_df, clinical_df)
+
+# Result innehåller:
+# - status: 'success' eller 'failed'
+# - tfrecord_data: Preprocessad data redo för TFRecord
+# - metadata: Processing metadata
+# - master_poc_compliance: Validering mot spec
+```
+
+### Fördelar med Orchestrator
+
+- **Separation of Concerns**: Core preprocessing logic separerad från infrastructure
+- **Testbarhet**: Pipeline kan testas isolerat
+- **Återanvändbarhet**: Pipeline kan användas i andra contexts
+- **Robusthet**: Orchestrator hanterar fel, checkpoints, memory
+- **Skalbarhet**: Batch processing och streaming TFRecord writing
 
 ---
 

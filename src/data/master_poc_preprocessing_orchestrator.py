@@ -33,9 +33,9 @@ import shutil
 from data.master_poc_preprocessing_pipeline import MasterPOCPreprocessingPipeline, MasterPOCPreprocessingConfig
 
 # Import befintlig infrastruktur
-from checkpoint_manager import PreprocessingCheckpointManager, get_memory_usage_mb, create_checkpoint_manager
+from checkpoint_manager import MasterPOCCheckpointManager, get_memory_usage_mb, create_checkpoint_manager
 from memory_efficient_batch_processor import MemoryEfficientBatchProcessor
-from data.tfrecord_standard_format import TFRecordStandardFormat
+# from data.tfrecord_standard_format import TFRecordStandardFormat  # KOMMENTERAD BORT - används inte
 
 # Import konfiguration
 from config import get_config
